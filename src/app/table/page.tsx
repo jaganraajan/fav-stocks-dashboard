@@ -38,6 +38,7 @@ export default function Page() {
 
         const data: StockData = await response.json();
         setStockData(data);
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       } catch (err: any) { // Catch potential errors (e.g., network issues, API errors)
         setError(err.message);
       } finally {
