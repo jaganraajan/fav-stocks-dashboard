@@ -1,6 +1,9 @@
 "use client"
 
 import { useState, useEffect } from 'react';
+import Link from "next/link";
+import { ArrowLeft, Wallet } from "lucide-react";
+import { Card, CardBody, CardHeader } from "@heroui/react";
 
 interface Address {
     address1: string;
@@ -99,6 +102,36 @@ export default function Page() {
     <div>
       <h1>{stockDataResponse.results.name}</h1>
       <p>Description: {stockDataResponse.results.description}</p>
+      <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4">
+    <ArrowLeft className="mr-2" size={20} />
+    <span>Back to Wallets</span>
+</Link>
+
+<Card className="border border-gray-200 shadow-sm">
+    <CardHeader className="flex justify-between items-center px-6 py-4 bg-gray-50">
+    <div className="flex items-center gap-3">
+        <Wallet size={24} className="text-blue-600" />
+        <div>
+        <h1 className="text-lg text-gray-800 dark:text-gray-800 font-semibold">Wallet Details</h1>
+        <p className="text-sm text-gray-500">ID: testID</p>
+        </div>
     </div>
+    </CardHeader>
+    <CardBody className="px-6 py-4">
+    <div className="grid grid-cols-2 gap-6">
+        <div>
+        <p className="text-sm font-medium text-gray-500 dark:text-gray-800 mb-1">Network</p>
+        <p className="text-base text-gray-500 dark:text-gray-800 ">Test1</p>
+        </div>
+        <div>
+        <p className="text-sm font-medium text-gray-500 mb-1">Default Address</p>
+        <p className="text-sm text-gray-500 dark:text-gray-800 ">TEST</p>
+        </div>
+    </div>
+    </CardBody>
+</Card>
+    </div>
+
+  
   );
 };
