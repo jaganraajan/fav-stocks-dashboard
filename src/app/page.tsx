@@ -16,7 +16,6 @@ import { useState, useEffect } from 'react';
 //"status":"OK","from":"2025-02-07","symbol":"TSLA","open":370.19,"high":380.5459,
 // "low":360.34,"close":361.62,"volume":6.9940474e+07,"afterHours":357.36,"preMarket":370.5}
 
-https://api.polygon.io/v1/open-close/AAPL/Sat%20Feb%2015%202025%2012:14:57%20GMT-0500%20(Eastern%20Standard%20Time)?adjusted=true&apiKey=w0QxLp_NTCE4Q3mCukpbLwkTc23u01rX
 interface StockData {
   status: string;
   from: string;
@@ -32,26 +31,29 @@ interface StockData {
 
 export default function Home() {
   const [stockData, setStockData] = useState<{ [symbol: string]: StockData }>({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+//  const [stockDate, setStockDate] = useState<string | null>(null);
 
-  const date = new Date();
-  date.setDate(date.getDate()-2);
-  const date2 =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
-      
+const date = new Date();
+date.setDate(date.getDate()-2);
+const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+
 
   useEffect(() => {
     const fetchData = async () => {
+      const date = new Date();
+      date.setDate(date.getDate()-2);
+      // setStockDate(date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0'));
+      
       const apiKey = process.env.NEXT_PUBLIC_POLYGON_API_KEY;
-      // const date2 = '2025-02-05';
       const symbols = ['AAPL', 'MSFT', 'NKE', 'BA', 'TSLA']; // Apple, Microsoft, Nike, Boeing, Tesla
-
+      // const stockDate = date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+      ;
       try {
         const results: { [symbol: string]: StockData } = {};
 
         for (const symbol of symbols) {
           const response = await fetch(
-            `https://api.polygon.io/v1/open-close/${symbol}/${date2}?adjusted=true&apiKey=${apiKey}`
+            `https://api.polygon.io/v1/open-close/${symbol}/${stockDate}?adjusted=true&apiKey=${apiKey}`
           );
 
           if (!response.ok) {
@@ -64,10 +66,9 @@ export default function Home() {
         }
 
         setStockData(results);
+        /* eslint-disable @typescript-eslint/no-explicit-any */
       } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+        console.log(err);
       }
     };
 
@@ -101,7 +102,7 @@ export default function Home() {
                 </h2>
                 <div className="flex items-center space-x-2">
                 <span className="text-sm text-gray-600 dark:text-gray-200">Date:</span>
-                <span className="text-sm text-gray-600 dark:text-gray-200">{date2}</span>
+                <span className="text-sm text-gray-600 dark:text-gray-200">{stockDate}</span>
                 </div>
             </CardHeader>
             <CardBody>
