@@ -1,101 +1,135 @@
-import Image from "next/image";
+"use client"
+
+import {
+    Table,
+    TableHeader,
+    TableColumn,
+    TableBody,
+    TableRow,
+    TableCell,
+    getKeyValue,
+} from "@heroui/react";
+import { Card, CardBody, CardHeader } from "@heroui/react";
+import { useState, useEffect } from 'react';
+//stock data
+
+//"status":"OK","from":"2025-02-07","symbol":"TSLA","open":370.19,"high":380.5459,
+// "low":360.34,"close":361.62,"volume":6.9940474e+07,"afterHours":357.36,"preMarket":370.5}
+
+https://api.polygon.io/v1/open-close/AAPL/Sat%20Feb%2015%202025%2012:14:57%20GMT-0500%20(Eastern%20Standard%20Time)?adjusted=true&apiKey=w0QxLp_NTCE4Q3mCukpbLwkTc23u01rX
+interface StockData {
+  status: string;
+  from: string;
+  symbol: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+  afterHours: number;
+  preMarket: number;
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly 3.</li>
-        </ol>
+  const [stockData, setStockData] = useState<{ [symbol: string]: StockData }>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+  const date = new Date();
+  date.setDate(date.getDate()-2);
+  const date2 =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+      
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const apiKey = process.env.NEXT_PUBLIC_POLYGON_API_KEY;
+      // const date2 = '2025-02-05';
+      const symbols = ['AAPL', 'MSFT', 'NKE', 'BA', 'TSLA']; // Apple, Microsoft, Nike, Boeing, Tesla
+
+      try {
+        const results: { [symbol: string]: StockData } = {};
+
+        for (const symbol of symbols) {
+          const response = await fetch(
+            `https://api.polygon.io/v1/open-close/${symbol}/${date2}?adjusted=true&apiKey=${apiKey}`
+          );
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+          }
+
+          const data: StockData = await response.json();
+          results[symbol] = data;
+        }
+
+        setStockData(results);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  console.log(stockData);
+
+  const rows = Object.entries(stockData).map(([symbol, data]) => ({
+    key: symbol,
+    symbol: symbol,
+    price: data.close,
+    volume: data.volume,
+  }));
+
+  const columns = [
+    { key: "symbol", label: "Symbol" },
+    { key: "price", label: "Share Price" },
+    { key: "volume", label: "Volume" },
+  ];
+
+
+  return (
+    <div className="container max-w-4xl mx-auto p-4 space-y-6">
+            <h1 className="text-4xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-pink-600">Favourite Stocks Dashboard</h1>
+            
+            <Card className="bg-white dark:bg-gray-800">
+            <CardHeader className="flex justify-between items-center">
+                <h2 className="text-2xl font-semibold flex items-center text-gray-800 dark:text-gray-200">
+                Stocks
+                </h2>
+                <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-600 dark:text-gray-200">Date:</span>
+                <span className="text-sm text-gray-600 dark:text-gray-200">{date2}</span>
+                </div>
+            </CardHeader>
+            <CardBody>
+                <Table 
+                    aria-label="Wallets table"
+                    classNames={{
+                    base: "max-w-full",
+                    table: "min-w-full border-collapse border border-gray-200 dark:border-gray-700",
+                    thead: "bg-gray-100 dark:bg-gray-700",
+                    tbody: "bg-white dark:bg-gray-900",
+                    tr: "border-b border-gray-200 dark:border-gray-700",
+                    th: "text-left p-3 text-gray-800 dark:text-gray-200 font-semibold",
+                    td: "p-3 text-gray-800 dark:text-gray-200",
+                    }}
+                >
+                    <TableHeader columns={columns}>
+                {(column) => <TableColumn  key={column.key}>{column.label}</TableColumn>}
+                </TableHeader>
+                <TableBody items={rows}>
+                {(item) => (
+                    <TableRow key={item.key}>
+                    {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
+                    </TableRow>
+                )}
+                </TableBody>
+            </Table>
+            </CardBody>
+            </Card>
+      </div>
   );
 }

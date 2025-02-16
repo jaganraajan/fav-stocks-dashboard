@@ -1,3 +1,4 @@
+import { FaGithub, FaLinkedin } from 'react-icons/fa'
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -20,18 +21,44 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="en" className="dark:bg-gray-900">
+      <head>
+        <link rel="icon" href="/favicon.ico" />
+      </head>
+      <body className={`min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200`}>
         <Providers>
-          {children}
-        </Providers> 
+          <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+            <header className="py-6 px-4 bg-white dark:bg-gray-800 shadow-md">
+              <nav className="container mx-auto flex justify-between items-center">
+                <div className="flex items-center space-x-6">
+                  <ul className="flex space-x-6 items-center">
+                    <li>
+                      <a href="https://docs.cdp.coinbase.com/cdp-sdk/docs/welcome" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" target="_blank" rel="noopener noreferrer">
+                        <FaLinkedin size={24} />
+                      </a>
+                    </li>
+                    <li>
+                      <a href="https://github.com/coinbase/coinbase-sdk-nodejs" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" target="_blank" rel="noopener noreferrer">
+                        <FaGithub size={24} />
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </nav>
+            </header>
+            <main>
+              {children}
+            </main>
+            <footer className="py-10 text-center text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 mt-20 border-t border-lavender-200 dark:border-gray-700">
+              <p>&copy; 2025 CDP SDK. All rights reserved.</p>
+            </footer>
+          </div>
+        </Providers>
       </body>
     </html>
-  );
+  )
 }
