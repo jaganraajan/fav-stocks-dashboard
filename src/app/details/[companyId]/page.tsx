@@ -53,7 +53,7 @@ interface Address {
 
   
 
-export default function Page() {
+export default function Page({ params }: { params: { companyId: string } }) {
   const [stockDataResponse, setStockDataResponse] = useState<StockDataResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -62,11 +62,11 @@ export default function Page() {
     const fetchData = async () => {
       const apiKey = process.env.NEXT_PUBLIC_POLYGON_API_KEY; // Store API key securely (see below)
       const date = '2025-02-05'; // Or make this dynamic
-      const symbol = 'TSLA'; // Or make this dynamic
+      // const symbol = 'TSLA'; // Or make this dynamic
 
       try {
         const response = await fetch(
-          `https://api.polygon.io/v3/reference/tickers/${symbol}?data=${date}&apiKey=${apiKey}`); // Adjust API endpoint
+          `https://api.polygon.io/v3/reference/tickers/${params.companyId}?data=${date}&apiKey=${apiKey}`); // Adjust API endpoint
 
         if (!response.ok) {
           const errorData = await response.json(); // Try to get error details from the API
@@ -74,6 +74,7 @@ export default function Page() {
         }
 
         const data: StockDataResponse = await response.json();
+        console.log(data);
         setStockDataResponse(data);
         /* eslint-disable @typescript-eslint/no-explicit-any */
       } catch (err: any) {

@@ -8,6 +8,7 @@ import {
     TableRow,
     TableCell,
     getKeyValue,
+    Link,
 } from "@heroui/react";
 import { Card, CardBody, CardHeader } from "@heroui/react";
 import { useState, useEffect } from 'react';
@@ -124,7 +125,15 @@ const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart
                 <TableBody items={rows}>
                 {(item) => (
                     <TableRow key={item.key}>
-                    {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
+                    {(columnKey) => <TableCell key={columnKey}>
+                      {columnKey === 'symbol' ? (
+                        <Link href={`/details/${item.symbol}`}>
+                          {getKeyValue(item, columnKey)}
+                        </Link>
+                      ) : (
+                        getKeyValue(item, columnKey)
+                      )}
+                    </TableCell>}
                     </TableRow>
                 )}
                 </TableBody>
