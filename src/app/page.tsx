@@ -35,14 +35,14 @@ export default function Home() {
 //  const [stockDate, setStockDate] = useState<string | null>(null);
 
 const date = new Date();
-date.setDate(date.getDate()-2);
+date.setDate(date.getDate()-3);
 const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
 
 
   useEffect(() => {
     const fetchData = async () => {
       const date = new Date();
-      date.setDate(date.getDate()-2);
+      date.setDate(date.getDate()-3);
       // setStockDate(date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0'));
       
       const apiKey = process.env.NEXT_PUBLIC_POLYGON_API_KEY;
@@ -87,7 +87,7 @@ const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart
 
   const columns = [
     { key: "symbol", label: "Symbol" },
-    { key: "price", label: "Share Price" },
+    { key: "price", label: "Share Price($)" },
     { key: "volume", label: "Volume" },
   ];
 

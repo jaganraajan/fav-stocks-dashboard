@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from "next/link";
 import { ArrowLeft, Wallet } from "lucide-react";
 import { Card, CardBody, CardHeader } from "@heroui/react";
+import { useParams } from 'next/navigation';
 
 interface Address {
     address1: string;
@@ -51,9 +52,9 @@ interface Address {
     status: string;
   }
 
+export default function Page() {
+  const { companyId } = useParams();
   
-
-export default function Page({ params }: { params: { companyId: string } }) {
   const [stockDataResponse, setStockDataResponse] = useState<StockDataResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +67,7 @@ export default function Page({ params }: { params: { companyId: string } }) {
 
       try {
         const response = await fetch(
-          `https://api.polygon.io/v3/reference/tickers/${params.companyId}?data=${date}&apiKey=${apiKey}`); // Adjust API endpoint
+          `https://api.polygon.io/v3/reference/tickers/${companyId}?data=${date}&apiKey=${apiKey}`); // Adjust API endpoint
 
         if (!response.ok) {
           const errorData = await response.json(); // Try to get error details from the API
@@ -85,7 +86,7 @@ export default function Page({ params }: { params: { companyId: string } }) {
     };
 
     fetchData();
-  }, []); // Empty dependency array ensures this runs only once on mount
+  }, [companyId]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -101,12 +102,13 @@ export default function Page({ params }: { params: { companyId: string } }) {
 
   return (
     <div>
-      <h1>{stockDataResponse.results.name}</h1>
-      <p>Description: {stockDataResponse.results.description}</p>
       <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4">
     <ArrowLeft className="mr-2" size={20} />
-    <span>Back to Wallets</span>
+    <span>Back to Dashboard</span>
 </Link>
+      <h1>{stockDataResponse.results.name}</h1>
+      <p>Description: {stockDataResponse.results.description}</p>
+      
 
 <Card className="border border-gray-200 shadow-sm">
     <CardHeader className="flex justify-between items-center px-6 py-4 bg-gray-50">
@@ -132,7 +134,5 @@ export default function Page({ params }: { params: { companyId: string } }) {
     </CardBody>
 </Card>
     </div>
-
-  
   );
 };

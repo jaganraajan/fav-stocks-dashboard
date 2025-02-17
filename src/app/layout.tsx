@@ -43,7 +43,7 @@ export default function RootLayout({
               {children}
             </main>
             <footer className="py-10 text-center text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 mt-20 border-t border-lavender-200 dark:border-gray-700">
-              <p>&copy; 2025 CDP SDK. All rights reserved.</p>
+              <p>&copy; 2025 Vercel SDK</p>
             </footer>
           </div>
         </Providers>
