@@ -48,7 +48,11 @@ const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart
       const apiKey = process.env.NEXT_PUBLIC_POLYGON_API_KEY;
       const symbols = ['AAPL', 'MSFT', 'NKE', 'BA', 'TSLA']; // Apple, Microsoft, Nike, Boeing, Tesla
       // const stockDate = date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
-      ;
+      const cachedData = localStorage.getItem('stockData');
+      if (cachedData) {
+        setStockData(JSON.parse(cachedData));
+        return;
+      }
       try {
         const results: { [symbol: string]: StockData } = {};
 
@@ -66,6 +70,7 @@ const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart
           results[symbol] = data;
         }
 
+        localStorage.setItem('stockData', JSON.stringify(results));
         setStockData(results);
         /* eslint-disable @typescript-eslint/no-explicit-any */
       } catch (err: any) {

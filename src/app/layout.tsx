@@ -26,12 +26,12 @@ export default function RootLayout({
                 <div className="flex items-center space-x-6">
                   <ul className="flex space-x-6 items-center">
                     <li>
-                      <a href="https://docs.cdp.coinbase.com/cdp-sdk/docs/welcome" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" target="_blank" rel="noopener noreferrer">
+                      <a href="https://www.linkedin.com/in/jagan-raajan/" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" target="_blank" rel="noopener noreferrer">
                         <FaLinkedin size={24} />
                       </a>
                     </li>
                     <li>
-                      <a href="https://github.com/coinbase/coinbase-sdk-nodejs" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" target="_blank" rel="noopener noreferrer">
+                      <a href="https://github.com/jaganraajan/fav-stocks-dashboard" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" target="_blank" rel="noopener noreferrer">
                         <FaGithub size={24} />
                       </a>
                     </li>

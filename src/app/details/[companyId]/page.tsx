@@ -110,7 +110,7 @@ export default function Page() {
       <p>Description: {stockDataResponse.results.description}</p>
       
 
-<Card className="border border-gray-200 shadow-sm">
+{/* <Card className="border border-gray-200 shadow-sm">
     <CardHeader className="flex justify-between items-center px-6 py-4 bg-gray-50">
     <div className="flex items-center gap-3">
         <Wallet size={24} className="text-blue-600" />
@@ -132,7 +132,7 @@ export default function Page() {
         </div>
     </div>
     </CardBody>
-</Card>
-    </div>
-  );
+</Card> */}
+    </div> 
+  ); 
 };
