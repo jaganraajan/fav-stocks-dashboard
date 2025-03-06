@@ -12,6 +12,7 @@ import {
 } from "@heroui/react";
 import { Card, CardBody, CardHeader } from "@heroui/react";
 import { useState, useEffect } from 'react';
+import { storeStockData } from '../utils/db';
 //stock data
 
 //"status":"OK","from":"2025-02-07","symbol":"TSLA","open":370.19,"high":380.5459,
@@ -49,10 +50,10 @@ const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart
       const symbols = ['AAPL', 'MSFT', 'NKE', 'BA', 'TSLA']; // Apple, Microsoft, Nike, Boeing, Tesla
       // const stockDate = date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
       const cachedData = localStorage.getItem('stockData');
-      if (cachedData) {
-        setStockData(JSON.parse(cachedData));
-        return;
-      }
+      // if (cachedData) {
+      //   setStockData(JSON.parse(cachedData));
+      //   return;
+      // }
       try {
         const results: { [symbol: string]: StockData } = {};
 
@@ -68,6 +69,17 @@ const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart
 
           const data: StockData = await response.json();
           results[symbol] = data;
+
+          console.log('data', data);
+          // Store the data in the database via the API route
+          console.log(' posting api data');
+          await fetch('/api/storeStockData', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ symbol, date: stockDate, data }),
+          });
         }
 
         localStorage.setItem('stockData', JSON.stringify(results));
@@ -81,7 +93,7 @@ const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart
     fetchData();
   }, []);
 
-  console.log(stockData);
+  // console.log(stockData);
 
   const rows = Object.entries(stockData).map(([symbol, data]) => ({
     key: symbol,
