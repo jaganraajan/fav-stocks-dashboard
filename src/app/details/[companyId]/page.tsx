@@ -100,39 +100,36 @@ export default function Page() {
     return <div>No data available.</div>; // Handle the case where data is still null after loading
   }
 
-  return (
-    <div>
-      <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4">
-    <ArrowLeft className="mr-2" size={20} />
-    <span>Back to Dashboard</span>
-</Link>
-      <h1>{stockDataResponse.results.name}</h1>
-      <p>Description: {stockDataResponse.results.description}</p>
-      
+  const { results } = stockDataResponse;
 
-{/* <Card className="border border-gray-200 shadow-sm">
-    <CardHeader className="flex justify-between items-center px-6 py-4 bg-gray-50">
-    <div className="flex items-center gap-3">
-        <Wallet size={24} className="text-blue-600" />
-        <div>
-        <h1 className="text-lg text-gray-800 dark:text-gray-800 font-semibold">Wallet Details</h1>
-        <p className="text-sm text-gray-500">ID: testID</p>
-        </div>
+  return (
+    <div className="container max-w-4xl mx-auto p-4 space-y-6">
+      <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4">
+        <ArrowLeft className="mr-2" size={20} />
+        <span>Back to Dashboard</span>
+      </Link>
+      <div >
+      <Card  className="bg-white dark:bg-gray-800 max-w-4xl">
+        <CardHeader className="text-gray-800 flex justify-between items-center">
+          <h2>{results.name}</h2>
+        </CardHeader>
+        <CardBody className="text-gray-800">
+          <p ><strong>Ticker:</strong> {results.ticker}</p>
+          <p><strong>Market:</strong> {results.market}</p>
+          <p><strong>Locale:</strong> {results.locale}</p>
+          <p><strong>Primary Exchange:</strong> {results.primary_exchange}</p>
+          <p><strong>Type:</strong> {results.type}</p>
+          <p><strong>Active:</strong> {results.active ? 'Yes' : 'No'}</p>
+          <p><strong>Currency:</strong> {results.currency_name}</p>
+          <p><strong>Market Cap:</strong> {results.market_cap}</p>
+          <p><strong>Phone Number:</strong> {results.phone_number}</p>
+          <p><strong>Description:</strong> {results.description}</p>
+          <p><strong>Homepage:</strong> <a href={results.homepage_url} target="_blank" rel="noopener noreferrer">{results.homepage_url}</a></p>
+          <p><strong>Total Employees:</strong> {results.total_employees}</p>
+          <p><strong>List Date:</strong> {results.list_date}</p>
+        </CardBody>
+      </Card>
     </div>
-    </CardHeader>
-    <CardBody className="px-6 py-4">
-    <div className="grid grid-cols-2 gap-6">
-        <div>
-        <p className="text-sm font-medium text-gray-500 dark:text-gray-800 mb-1">Network</p>
-        <p className="text-base text-gray-500 dark:text-gray-800 ">Test1</p>
-        </div>
-        <div>
-        <p className="text-sm font-medium text-gray-500 mb-1">Default Address</p>
-        <p className="text-sm text-gray-500 dark:text-gray-800 ">TEST</p>
-        </div>
-    </div>
-    </CardBody>
-</Card> */}
     </div> 
   ); 
 };
