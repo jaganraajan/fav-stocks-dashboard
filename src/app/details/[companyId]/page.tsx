@@ -103,18 +103,18 @@ export default function Page() {
   const { results } = stockDataResponse;
 
   return (
-    <div className="container max-w-4xl mx-auto p-4 space-y-6">
-      <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4">
-        <ArrowLeft className="mr-2" size={20} />
-        <span>Back to Dashboard</span>
-      </Link>
-      <div >
-      <Card  className="bg-white dark:bg-gray-800 max-w-4xl">
-        <CardHeader className="text-gray-800 flex justify-between items-center">
-          <h2>{results.name}</h2>
-        </CardHeader>
-        <CardBody className="text-gray-800">
-          <p ><strong>Ticker:</strong> {results.ticker}</p>
+    <div className="container mx-auto p-4">
+    <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4">
+      <ArrowLeft className="mr-2" size={20} />
+      <span>Back to Dashboard</span>
+    </Link>
+    <Card className="bg-white dark:bg-gray-800 max-w-4xl mx-auto shadow-lg rounded-lg overflow-hidden">
+      <CardHeader className="bg-gray-100 dark:bg-gray-900 p-4">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{results.name}</h2>
+      </CardHeader>
+      <CardBody className="p-6 text-gray-800 dark:text-gray-100">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <p><strong>Ticker:</strong> {results.ticker}</p>
           <p><strong>Market:</strong> {results.market}</p>
           <p><strong>Locale:</strong> {results.locale}</p>
           <p><strong>Primary Exchange:</strong> {results.primary_exchange}</p>
@@ -123,13 +123,15 @@ export default function Page() {
           <p><strong>Currency:</strong> {results.currency_name}</p>
           <p><strong>Market Cap:</strong> {results.market_cap}</p>
           <p><strong>Phone Number:</strong> {results.phone_number}</p>
-          <p><strong>Description:</strong> {results.description}</p>
-          <p><strong>Homepage:</strong> <a href={results.homepage_url} target="_blank" rel="noopener noreferrer">{results.homepage_url}</a></p>
+          <p><strong>Homepage:</strong> <a href={results.homepage_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700">{results.homepage_url}</a></p>
           <p><strong>Total Employees:</strong> {results.total_employees}</p>
           <p><strong>List Date:</strong> {results.list_date}</p>
-        </CardBody>
-      </Card>
-    </div>
-    </div> 
+        </div>
+        <div className="mt-4">
+          <p><strong>Description:</strong> {results.description}</p>
+        </div>
+      </CardBody>
+    </Card>
+  </div>
   ); 
 };
