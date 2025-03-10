@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from "next/link";
-import { ArrowLeft, Wallet } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Card, CardBody, CardHeader } from "@heroui/react";
 import { useParams } from 'next/navigation';
 
@@ -52,10 +52,27 @@ interface Address {
     status: string;
   }
 
+  interface NewsArticle {
+    id: string;
+    publisher: {
+      name: string;
+      homepage_url: string;
+      logo_url: string;
+      favicon_url: string;
+    };
+    title: string;
+    author: string;
+    published_utc: string;
+    article_url: string;
+    image_url: string;
+    description: string;
+  }
+  
 export default function Page() {
   const { companyId } = useParams();
   
   const [stockDataResponse, setStockDataResponse] = useState<StockDataResponse | null>(null);
+  const [news, setNews] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -73,6 +90,17 @@ export default function Page() {
           const errorData = await response.json(); // Try to get error details from the API
           throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
         }
+
+        const latestNews = await fetch(
+          `https://api.polygon.io/v2/reference/news?ticker=${companyId}&limit=10&apiKey=${apiKey}`);
+        
+        console.log(latestNews);
+        if (!latestNews.ok) {
+          throw new Error(`Error fetching news: ${latestNews.statusText}`);
+        }
+
+        const latestNewsData = await latestNews.json();
+        setNews(latestNewsData.results);
 
         const data: StockDataResponse = await response.json();
         console.log(data);
@@ -105,6 +133,16 @@ export default function Page() {
   // Calculate recent close price
   const recentClosePrice = results.market_cap / results.weighted_shares_outstanding;
 
+  // Format market cap
+  const formatMarketCap = (marketCap: number) => {
+    if (marketCap >= 1e9) {
+      return `${(marketCap / 1e9).toFixed(2)} Billion`;
+    } else if (marketCap >= 1e6) {
+      return `${(marketCap / 1e6).toFixed(2)} Million`;
+    }
+    return marketCap.toString();
+  };
+
   return (
     <div className="container mx-auto p-4">
       <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4">
@@ -119,12 +157,10 @@ export default function Page() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <p><strong>Ticker:</strong> {results.ticker}</p>
             <p><strong>Market:</strong> {results.market}</p>
-            <p><strong>Locale:</strong> {results.locale}</p>
-            <p><strong>Primary Exchange:</strong> {results.primary_exchange}</p>
             <p><strong>Type:</strong> {results.type}</p>
             <p><strong>Active:</strong> {results.active ? 'Yes' : 'No'}</p>
-            <p><strong>Currency:</strong> {results.currency_name}</p>
-            <p><strong>Market Cap:</strong> ${results.market_cap.toLocaleString()}</p>
+            <p><strong>Currency:</strong> {results.currency_name.toUpperCase()}</p>
+            <p><strong>Market Cap:</strong> ${formatMarketCap(results.market_cap)}</p>
             <p><strong>Recent Close Price:</strong> ${recentClosePrice.toFixed(2)}</p>
             <p><strong>Weighted Shares Outstanding:</strong> {results.weighted_shares_outstanding.toLocaleString()}</p>
             <p><strong>Phone Number:</strong> {results.phone_number}</p>
@@ -135,6 +171,29 @@ export default function Page() {
           <div className="mt-4">
             <p><strong>Description:</strong> {results.description}</p>
           </div>
+        </CardBody>
+        <CardBody className="p-6 text-gray-800 dark:text-gray-100">
+          <div className="container mx-auto p-4">
+          <h1 className="text-3xl font-bold mb-6">Latest News for {companyId}</h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {news.map((article) => (
+              <div key={article.id} className="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
+                <img src={article.image_url} alt={article.title} className="w-full h-48 object-cover" />
+                <div className="p-4">
+                  <h2 className="text-xl font-bold mb-2">{article.title}</h2>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">{article.description}</p>
+                  <div className="flex items-center mb-4">
+                    <img src={article.publisher.logo_url} alt={article.publisher.name} className="w-8 h-8 mr-2" />
+                    <span className="text-gray-600 dark:text-gray-400">{article.publisher.name}</span>
+                  </div>
+                  <a href={article.article_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700">
+                    Read more
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
         </CardBody>
       </Card>
     </div>

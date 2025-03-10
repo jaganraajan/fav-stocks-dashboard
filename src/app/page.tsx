@@ -12,7 +12,6 @@ import {
 } from "@heroui/react";
 import { Card, CardBody, CardHeader } from "@heroui/react";
 import { useState, useEffect } from 'react';
-import { storeStockData } from '../utils/db';
 //stock data
 
 //"status":"OK","from":"2025-02-07","symbol":"TSLA","open":370.19,"high":380.5459,
@@ -44,16 +43,9 @@ const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart
     const fetchData = async () => {
       const date = new Date();
       date.setDate(date.getDate()-3);
-      // setStockDate(date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0'));
-      
       const apiKey = process.env.NEXT_PUBLIC_POLYGON_API_KEY;
-      const symbols = ['AAPL', 'MSFT', 'NKE', 'BA', 'TSLA']; // Apple, Microsoft, Nike, Boeing, Tesla
-      // const stockDate = date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
-      const cachedData = localStorage.getItem('stockData');
-      // if (cachedData) {
-      //   setStockData(JSON.parse(cachedData));
-      //   return;
-      // }
+      const symbols = ['AAPL', 'NKE', 'BA', 'TSLA', 'GOOG']; // Apple, Nike, Boeing, Tesla, Google
+
       try {
         const results: { [symbol: string]: StockData } = {};
 
@@ -71,18 +63,8 @@ const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart
           results[symbol] = data;
 
           console.log('data', data);
-          // Store the data in the database via the API route
-          console.log(' posting api data');
-          await fetch('/api/storeStockData', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ symbol, date: stockDate, data }),
-          });
         }
 
-        localStorage.setItem('stockData', JSON.stringify(results));
         setStockData(results);
         /* eslint-disable @typescript-eslint/no-explicit-any */
       } catch (err: any) {
