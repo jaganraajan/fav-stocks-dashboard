@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { Client } from '@neondatabase/serverless';
+import { neon } from '@neondatabase/serverless';
 import { v4 as uuidv4 } from 'uuid';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -39,13 +39,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       results[symbol] = { price: data.close, volume: data.volume };
     }
 
-    const client = new Client({
-      connectionString: process.env.DATABASE_URL,
-    });
-    await client.connect();
-
-    // Create table if it doesn't exist
-    await client.query(`
+    const sql = neon(process.env.DATABASE_URL || '');
+    await sql`
       CREATE TABLE IF NOT EXISTS stock_data (
         id UUID PRIMARY KEY,
         date DATE,
@@ -53,19 +48,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         price NUMERIC,
         volume NUMERIC
       )
-    `);
+    `;
 
     // Insert separate entries for each company
     for (const symbol in results) {
       const { price, volume } = results[symbol];
       const id = uuidv4();
-      await client.query(`
+      const data = await sql`
         INSERT INTO stock_data (id, date, symbol, price, volume)
-        VALUES ($1, $2, $3, $4, $5)
-      `, [id, stockDate, symbol, price, volume]);
+        VALUES (${id}, ${stockDate}, ${symbol}, ${price}, ${volume})
+      `;
+      console.log(data);
     }
 
-    await client.end();
+
     res?.status(200).json({ message: 'Stock data updated successfully!!!' });
   } catch (error) {
     console.error(error);
