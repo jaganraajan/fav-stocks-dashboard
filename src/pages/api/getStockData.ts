@@ -15,9 +15,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await client.connect();
 
     const result = await client.query(`
-      SELECT symbol, price, volume
+      SELECT DISTINCT ON (symbol) symbol, price, volume
       FROM stock_data
-      WHERE date = $1
+      WHERE date = $1 AND price IS NOT NULL AND volume IS NOT NULL
+      ORDER BY symbol, date
     `, [date]);
 
     await client.end();

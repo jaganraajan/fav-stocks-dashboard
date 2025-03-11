@@ -18,16 +18,9 @@ import { useState, useEffect } from 'react';
 // "low":360.34,"close":361.62,"volume":6.9940474e+07,"afterHours":357.36,"preMarket":370.5}
 
 interface StockData {
-  status: string;
-  from: string;
   symbol: string;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  volume: number;
-  afterHours: number;
-  preMarket: number;
+  price: string;
+  volume: string;
 }
 
 export default function Home() {
@@ -43,8 +36,6 @@ const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart
     const fetchData = async () => {
       const date = new Date();
       date.setDate(date.getDate()-3);
-      const apiKey = process.env.NEXT_PUBLIC_POLYGON_API_KEY;
-      const symbols = ['AAPL', 'NKE', 'BA', 'TSLA', 'GOOG']; // Apple, Nike, Boeing, Tesla, Google
 
       try {
          const response = await fetch(`/api/getStockData?date=${stockDate}`);
@@ -88,7 +79,7 @@ const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart
   const rows = Object.entries(stockData).map(([symbol, data]) => ({
     key: symbol,
     symbol: symbol,
-    price: data.close,
+    price: data.price,
     volume: data.volume,
   }));
 
