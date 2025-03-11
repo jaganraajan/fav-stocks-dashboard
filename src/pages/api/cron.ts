@@ -25,41 +25,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const results: { [symbol: string]: { price: number; volume: number } } = {};
 
-    // Function to fetch data for a batch of symbols
-    const fetchBatch = async (batch: string[]) => {
-      const fetchPromises = batch.map(async (symbol) => {
-        try {
-          const response = await fetch(
-            `https://api.polygon.io/v1/open-close/${symbol}/${stockDate}?adjusted=true&apiKey=${apiKey}`
-          );
+    for (const symbol of symbols) {
+      const response = await fetch(
+        `https://api.polygon.io/v1/open-close/${symbol}/${stockDate}?adjusted=true&apiKey=${apiKey}`
+      );
 
-          if (!response.ok) {
-            const errorData = await response.json();
-            console.error(`Error fetching data for ${symbol}: ${errorData.message}`);
-            return;
-          }
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
 
-          const data = await response.json();
-          if (!data.close || !data.volume) {
-            console.error(`Data not found for ${symbol}`);
-            return;
-          }
-
-          results[symbol] = { price: data.close, volume: data.volume };
-        } catch (error) {
-          if (error instanceof Error) {
-            console.error(`Error processing data for ${symbol}: ${error.message}`);
-          } else {
-            console.error(`Error processing data for ${symbol}: ${error}`);
-          }
-        }
-      });
-
-      await Promise.all(fetchPromises);
-    };
-
-    // Fetch data for the symbols
-    await fetchBatch(symbols);
+      const data = await response.json();
+      results[symbol] = { price: data.close, volume: data.volume };
+    }
 
     const client = new Client({
       connectionString: process.env.NEON_DATABASE_URL,
@@ -78,20 +56,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     `);
 
     // Insert separate entries for each company
-    const insertPromises = Object.entries(results).map(async ([symbol, { price, volume }]) => {
+    for (const symbol in results) {
+      const { price, volume } = results[symbol];
       const id = uuidv4();
       await client.query(`
         INSERT INTO stock_data (id, date, symbol, price, volume)
         VALUES ($1, $2, $3, $4, $5)
       `, [id, stockDate, symbol, price, volume]);
-    });
-
-    await Promise.all(insertPromises);
+    }
 
     await client.end();
-    res?.status(200).json({ message: 'Stock data updated successfully!!' });
+    res?.status(200).json({ message: 'Stock data updated successfully!!!' });
   } catch (error) {
     console.error(error);
-    res?.status(500).json({ error: 'Internal server error' });
+    res?.status(500).json({ error: 'Internal server error.' });
   }
 }
