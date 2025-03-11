@@ -1,12 +1,7 @@
 {
-    "functions": {
-      "api/updateStockDataWorker.ts": {
-        "runtime": "nodejs14.x"
-      }
-    },
     "crons": [
         {
-            "path": "/api/updateStockDataWorker",
+            "path": "/api/cron",
             "schedule": "*/5 * * * *" 
         }
     ]
