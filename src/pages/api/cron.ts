@@ -8,23 +8,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
 
   const apiKey = process.env.NEXT_PUBLIC_POLYGON_API_KEY;
-  const symbols = ['AAPL', 'NKE', 'BA', 'TSLA', 'GOOG']; // Apple, Nike, Boeing, Tesla, Google
+  const symbols = ['AAPL', 'NKE', 'BA', 'TSLA', 'GOOG', 'NFLX', 'LMT', 'AMZN', 'NVDA', 'MSFT']; // Apple, Nike, Boeing, Tesla, Google, Netflix, Lockheed Martin, Amazon, Nvidia, Microsoft
 
   try {
     const results: { [symbol: string]: { price: number; volume: number } } = {};
 
-    for (const symbol of symbols) {
-      const response = await fetch(
-        `https://api.polygon.io/v1/open-close/${symbol}/${stockDate}?adjusted=true&apiKey=${apiKey}`
-      );
+    // Function to fetch data for a batch of symbols
+    const fetchBatch = async (batch: string[]) => {
+      for (const symbol of batch) {
+        const response = await fetch(
+          `https://api.polygon.io/v1/open-close/${symbol}/${stockDate}?adjusted=true&apiKey=${apiKey}`
+        );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        results[symbol] = { price: data.close, volume: data.volume };
       }
+    };
 
-      const data = await response.json();
-      results[symbol] = { price: data.close, volume: data.volume };
+    // Split symbols into batches of 5
+    const batches = [];
+    for (let i = 0; i < symbols.length; i += 5) {
+      batches.push(symbols.slice(i, i + 5));
+    }
+
+    // Fetch data for each batch with a delay between each batch
+    for (const batch of batches) {
+      await fetchBatch(batch);
+      await new Promise((resolve) => setTimeout(resolve, 60000)); // Delay of 1 minute between batches
     }
 
     const client = new Client({
@@ -54,7 +69,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     await client.end();
-    res?.status(200).json({ message: 'Stock data updated successfully.' });
+    res?.status(200).json({ message: 'Stock data updated successfully for 10 companies.' });
   } catch (error) {
     console.error(error);
     res?.status(500).json({ error: 'Internal server error.' });
