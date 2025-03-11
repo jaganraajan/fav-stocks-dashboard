@@ -174,8 +174,8 @@ export default function Page() {
           </div>
         </CardBody>
         <CardBody className="p-6 text-gray-800 dark:text-gray-100">
-          <div className="container mx-auto p-4">
-          <h1 className="text-3xl font-bold mb-6">Latest News for {companyId}</h1>
+          <div className="container mx-auto">
+          <h1 className="text-3xl font-bold mb-6">Latest News for {results.name}</h1>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {news.map((article) => (
               <div key={article.id} className="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">

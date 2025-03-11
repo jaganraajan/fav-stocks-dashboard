@@ -1,15 +1,6 @@
 "use client"
 
-import {
-    Table,
-    TableHeader,
-    TableColumn,
-    TableBody,
-    TableRow,
-    TableCell,
-    getKeyValue,
-    Link,
-} from "@heroui/react";
+import { Link } from "@heroui/react";
 import { Card, CardBody, CardHeader } from "@heroui/react";
 import { useState, useEffect } from 'react';
 //stock data
@@ -22,6 +13,19 @@ interface StockData {
   price: string;
   volume: string;
 }
+
+const companyNames: { [symbol: string]: string } = {
+  AAPL: 'Apple Inc.',
+  NKE: 'Nike Inc.',
+  BA: 'Boeing Co.',
+  TSLA: 'Tesla Inc.',
+  GOOG: 'Alphabet Inc.',
+  NFLX: 'Netflix Inc.',
+  LMT: 'Lockheed Martin Corp.',
+  AMZN: 'Amazon.com Inc.',
+  NVDA: 'NVIDIA Corp.',
+  MSFT: 'Microsoft Corp.',
+};
 
 export default function Home() {
   const [stockData, setStockData] = useState<{ [symbol: string]: StockData }>({});
@@ -78,12 +82,14 @@ const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart
 
   const rows = Object.entries(stockData).map(([symbol, data]) => ({
     key: symbol,
+    name: companyNames[symbol],
     symbol: symbol,
     price: data.price,
     volume: data.volume,
   }));
 
   const columns = [
+    { key: "name", label: "Company Name" },
     { key: "symbol", label: "Symbol" },
     { key: "price", label: "Share Price($)" },
     { key: "volume", label: "Volume" },
@@ -96,47 +102,44 @@ const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart
             
             <Card className="bg-white dark:bg-gray-800">
             <CardHeader className="flex justify-between items-center">
-                <h2 className="text-2xl font-semibold flex items-center text-gray-800 dark:text-gray-200">
+                <h2 className="px-4 text-2xl font-semibold flex items-center text-gray-800 dark:text-gray-200">
                 Stocks
                 </h2>
-                <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600 dark:text-gray-200">Date:</span>
-                <span className="text-sm text-gray-600 dark:text-gray-200">{stockDate}</span>
+                <div className="px-4 flex items-center space-x-2">
+                  <span className="text-m text-gray-600 dark:text-gray-200"><strong>Date:</strong></span>
+                  <span className="text-m text-gray-600 dark:text-gray-200">{stockDate}</span>
                 </div>
             </CardHeader>
-            <CardBody>
-                <Table 
-                    aria-label="Wallets table"
-                    classNames={{
-                    base: "max-w-full",
-                    table: "min-w-full border-collapse border border-gray-200 dark:border-gray-700",
-                    thead: "bg-gray-100 dark:bg-gray-700",
-                    tbody: "bg-white dark:bg-gray-900",
-                    tr: "border-b border-gray-200 dark:border-gray-700",
-                    th: "text-left p-3 text-gray-800 dark:text-gray-200 font-semibold",
-                    td: "p-3 text-gray-800 dark:text-gray-200",
-                    }}
-                >
-                    <TableHeader columns={columns}>
-                {(column) => <TableColumn  key={column.key}>{column.label}</TableColumn>}
-                </TableHeader>
-                <TableBody items={rows}>
-                {(item) => (
-                    <TableRow key={item.key}>
-                    {(columnKey) => <TableCell key={columnKey}>
-                      {columnKey === 'symbol' ? (
-                        <Link href={`/details/${item.symbol}`}>
-                          {getKeyValue(item, columnKey)}
+            <CardBody className="p-6 pt-0 text-gray-800 dark:text-gray-100">
+          <table className="min-w-full border-collapse border border-gray-200 dark:border-gray-700 rounded-xs">
+            <thead className="bg-gray-100 dark:bg-gray-900">
+              <tr className="border-b border-gray-200 dark:border-gray-700">
+                {columns.map((column) => (
+                  <th key={column.key} className="p-3 px-4 border-b border-gray-200 dark:border-gray-700">
+                    {column.label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="bg-white dark:bg-gray-900">
+              {rows.map((row) => (
+                <tr key={row.key}>
+                  {columns.map((column) => (
+                    <td key={column.key} className="p-3 text-gray-800 dark:text-gray-200 px-4 border-b border-gray-200 dark:border-gray-700">
+                      {column.key === 'symbol' ? (
+                        <Link href={`/details/${row.symbol}`}>
+                          {row[column.key as keyof StockData]}
                         </Link>
                       ) : (
-                        getKeyValue(item, columnKey)
+                        row[column.key as keyof StockData]
                       )}
-                    </TableCell>}
-                    </TableRow>
-                )}
-                </TableBody>
-            </Table>
-            </CardBody>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </CardBody>
             </Card>
       </div>
   );
