@@ -30,7 +30,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         `https://api.polygon.io/v1/open-close/${symbol}/${stockDate}?adjusted=true&apiKey=${apiKey}`
       );
 
-      console.log(response);
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
@@ -60,7 +59,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         VALUES (${id}, ${stockDate}, ${symbol}, ${price}, ${volume})
       `;
     }
-
 
     res?.status(200).json({ message: 'Stock data updated successfully!!!' });
   } catch (error) {

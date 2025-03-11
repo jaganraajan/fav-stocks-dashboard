@@ -80,12 +80,14 @@ export default function Page() {
   useEffect(() => {
     const fetchData = async () => {
       const apiKey = process.env.NEXT_PUBLIC_POLYGON_API_KEY; // Store API key securely (see below)
-      const date = '2025-02-05'; // Or make this dynamic
-      // const symbol = 'TSLA'; // Or make this dynamic
+      const date = new Date();
+      date.setDate(date.getDate() - 4);
+      const stockDate = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+
 
       try {
         const response = await fetch(
-          `https://api.polygon.io/v3/reference/tickers/${companyId}?data=${date}&apiKey=${apiKey}`); // Adjust API endpoint
+          `https://api.polygon.io/v3/reference/tickers/${companyId}?data=${stockDate}&apiKey=${apiKey}`); // Adjust API endpoint
 
         if (!response.ok) {
           const errorData = await response.json(); // Try to get error details from the API
@@ -104,7 +106,6 @@ export default function Page() {
         setNews(latestNewsData.results);
 
         const data: StockDataResponse = await response.json();
-        console.log(data);
         setStockDataResponse(data);
         /* eslint-disable @typescript-eslint/no-explicit-any */
       } catch (err: any) {
@@ -136,6 +137,10 @@ export default function Page() {
 
   // Format market cap
   const formatMarketCap = (marketCap: number) => {
+    if(!marketCap) {
+      return '';
+    }
+
     if (marketCap >= 1e9) {
       return `${(marketCap / 1e9).toFixed(2)} Billion`;
     } else if (marketCap >= 1e6) {
@@ -160,10 +165,10 @@ export default function Page() {
             <p><strong>Market:</strong> {results.market}</p>
             <p><strong>Type:</strong> {results.type}</p>
             <p><strong>Active:</strong> {results.active ? 'Yes' : 'No'}</p>
-            <p><strong>Currency:</strong> {results.currency_name.toUpperCase()}</p>
+            <p><strong>Currency:</strong> {results.currency_name?.toUpperCase()}</p>
             <p><strong>Market Cap:</strong> ${formatMarketCap(results.market_cap)}</p>
-            <p><strong>Recent Close Price:</strong> ${recentClosePrice.toFixed(2)}</p>
-            <p><strong>Weighted Shares Outstanding:</strong> {results.weighted_shares_outstanding.toLocaleString()}</p>
+            <p><strong>Recent Close Price:</strong> ${recentClosePrice?.toFixed(2)}</p>
+            <p><strong>Weighted Shares Outstanding:</strong> {results.weighted_shares_outstanding?.toLocaleString()}</p>
             <p><strong>Phone Number:</strong> {results.phone_number}</p>
             <p><strong>Homepage:</strong> <a href={results.homepage_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700">{results.homepage_url}</a></p>
             <p><strong>Total Employees:</strong> {results.total_employees}</p>

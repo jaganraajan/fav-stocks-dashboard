@@ -3,10 +3,6 @@
 import { Link } from "@heroui/react";
 import { Card, CardBody, CardHeader } from "@heroui/react";
 import { useState, useEffect } from 'react';
-//stock data
-
-//"status":"OK","from":"2025-02-07","symbol":"TSLA","open":370.19,"high":380.5459,
-// "low":360.34,"close":361.62,"volume":6.9940474e+07,"afterHours":357.36,"preMarket":370.5}
 
 interface StockData {
   symbol: string;
@@ -27,13 +23,22 @@ const companyNames: { [symbol: string]: string } = {
   MSFT: 'Microsoft Corp.',
 };
 
+const formatPrice = (price: number) => `$${price.toFixed(2)}`;
+
+const formatVolume = (volume: number) => {
+  if (volume >= 1e9) {
+    return `${(volume / 1e9).toFixed(2)} Billion`;
+  } else if (volume >= 1e6) {
+    return `${(volume / 1e6).toFixed(2)} Million`;
+  }
+  return volume.toString();
+};
+
 export default function Home() {
   const [stockData, setStockData] = useState<{ [symbol: string]: StockData }>({});
-//  const [stockDate, setStockDate] = useState<string | null>(null);
-
-const date = new Date();
-date.setDate(date.getDate()-4);
-const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+  const date = new Date();
+  date.setDate(date.getDate()-4);
+  const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
 
 
   useEffect(() => {
@@ -42,9 +47,7 @@ const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart
       date.setDate(date.getDate()-4);
 
       try {
-         const response = await fetch(`/api/getStockData?date=${stockDate}`);
-          console.log('response');
-          console.log(response);
+          const response = await fetch(`/api/getStockData?date=${stockDate}`);
 
           if (!response.ok) {
             const errorData = await response.json();
@@ -58,18 +61,8 @@ const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart
             results[item.symbol] = item;
           });
 
-          console.log('data', data);
           setStockData(results);
-
-         // Call the API route to update the database
-        //  await fetch('/api/updateStockData', {
-        //   method: 'POST',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        //   body: JSON.stringify({ stockData: results, date: stockDate }),
-        // });
-        /* eslint-disable @typescript-eslint/no-explicit-any */
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       } catch (err: any) {
         console.log(err);
       }
@@ -78,20 +71,19 @@ const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart
     fetchData();
   }, []);
 
-  // console.log(stockData);
 
   const rows = Object.entries(stockData).map(([symbol, data]) => ({
     key: symbol,
     name: companyNames[symbol],
     symbol: symbol,
-    price: data.price,
-    volume: data.volume,
+    price: formatPrice(Number(data.price)),
+    volume: formatVolume(Number(data.volume)),
   }));
 
   const columns = [
     { key: "name", label: "Company Name" },
     { key: "symbol", label: "Symbol" },
-    { key: "price", label: "Share Price($)" },
+    { key: "price", label: "Share Price (USD)" },
     { key: "volume", label: "Volume" },
   ];
 
