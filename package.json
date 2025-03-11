@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@heroui/react": "^2.6.14",
+    "@neondatabase/serverless": "^0.10.4",
     "@nextui-org/react": "^2.6.11",
     "framer-motion": "^12.4.1",
     "lucide-react": "^0.475.0",
@@ -17,7 +18,8 @@
     "pg": "^8.13.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-icons": "^5.4.0"
+    "react-icons": "^5.4.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

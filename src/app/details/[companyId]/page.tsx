@@ -69,7 +69,8 @@ interface Address {
   }
   
 export default function Page() {
-  const { companyId } = useParams();
+  const params = useParams<{ companyId: string }>();
+  const companyId = params?.companyId;
   
   const [stockDataResponse, setStockDataResponse] = useState<StockDataResponse | null>(null);
   const [news, setNews] = useState<NewsArticle[]>([]);

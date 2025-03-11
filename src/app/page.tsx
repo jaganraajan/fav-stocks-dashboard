@@ -66,6 +66,15 @@ const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart
         }
 
         setStockData(results);
+
+         // Call the API route to update the database
+         await fetch('/api/updateStockData', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ stockData: results, date: stockDate }),
+        });
         /* eslint-disable @typescript-eslint/no-explicit-any */
       } catch (err: any) {
         console.log(err);
