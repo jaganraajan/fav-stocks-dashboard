@@ -47,34 +47,33 @@ const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart
       const symbols = ['AAPL', 'NKE', 'BA', 'TSLA', 'GOOG']; // Apple, Nike, Boeing, Tesla, Google
 
       try {
-        const results: { [symbol: string]: StockData } = {};
-
-        for (const symbol of symbols) {
-          const response = await fetch(
-            `https://api.polygon.io/v1/open-close/${symbol}/${stockDate}?adjusted=true&apiKey=${apiKey}`
-          );
+         const response = await fetch(`/api/getStockData?date=${stockDate}`);
+          console.log('response');
+          console.log(response);
 
           if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
           }
 
-          const data: StockData = await response.json();
-          results[symbol] = data;
+          const data = await response.json();
+          const results: { [symbol: string]: StockData } = {};
+
+          data.forEach((item: StockData) => {
+            results[item.symbol] = item;
+          });
 
           console.log('data', data);
-        }
-
-        setStockData(results);
+          setStockData(results);
 
          // Call the API route to update the database
-         await fetch('/api/updateStockData', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ stockData: results, date: stockDate }),
-        });
+        //  await fetch('/api/updateStockData', {
+        //   method: 'POST',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        //   body: JSON.stringify({ stockData: results, date: stockDate }),
+        // });
         /* eslint-disable @typescript-eslint/no-explicit-any */
       } catch (err: any) {
         console.log(err);
