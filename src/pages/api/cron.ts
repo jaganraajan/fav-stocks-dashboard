@@ -8,7 +8,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const stockDate = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
 
   const apiKey = process.env.NEXT_PUBLIC_POLYGON_API_KEY;
-  const symbols = ['AAPL', 'NKE', 'BA', 'TSLA', 'GOOG', 'NFLX', 'LMT', 'AMZN', 'NVDA', 'MSFT']; // Apple, Nike, Boeing, Tesla, Google, Netflix, Lockheed Martin, Amazon, Nvidia, Microsoft
+  const symbolsGroup1 = ['AAPL', 'NKE', 'BA', 'TSLA', 'GOOG'];
+  const symbolsGroup2 = ['NFLX', 'LMT', 'AMZN', 'NVDA', 'MSFT'];
+
+  const group = req.query.group;
+  let symbols: string[];
+
+  if (group === '1') {
+    symbols = symbolsGroup1;
+  } else if (group === '2') {
+    symbols = symbolsGroup2;
+  } else {
+    return res.status(400).json({ error: 'Invalid group' });
+  }
 
   try {
     const results: { [symbol: string]: { price: number; volume: number } } = {};
@@ -46,17 +58,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       await Promise.all(fetchPromises);
     };
 
-    // Split symbols into batches of 5
-    const batches = [];
-    for (let i = 0; i < symbols.length; i += 5) {
-      batches.push(symbols.slice(i, i + 5));
-    }
-
-    // Fetch data for each batch with a delay between each batch
-    for (const batch of batches) {
-      await fetchBatch(batch);
-      await new Promise((resolve) => setTimeout(resolve, 60000)); // Delay of 1 minute between batches
-    }
+    // Fetch data for the symbols
+    await fetchBatch(symbols);
 
     const client = new Client({
       connectionString: process.env.NEON_DATABASE_URL,
@@ -86,7 +89,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await Promise.all(insertPromises);
 
     await client.end();
-    res?.status(200).json({ message: 'Stock data updated successfully for 10 favourite companies.' });
+    res?.status(200).json({ message: 'Stock data updated successfully!!' });
   } catch (error) {
     console.error(error);
     res?.status(500).json({ error: 'Internal server error' });
