@@ -16,17 +16,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Function to fetch data for a batch of symbols
     const fetchBatch = async (batch: string[]) => {
       for (const symbol of batch) {
-        const response = await fetch(
-          `https://api.polygon.io/v1/open-close/${symbol}/${stockDate}?adjusted=true&apiKey=${apiKey}`
-        );
+        try {
+          const response = await fetch(
+            `https://api.polygon.io/v1/open-close/${symbol}/${stockDate}?adjusted=true&apiKey=${apiKey}`
+          );
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error(`Error fetching data for ${symbol}: ${errorData.message}`);
+            continue; // Skip to the next symbol
+          }
+
+          const data = await response.json();
+          if (!data.close || !data.volume) {
+            console.error(`Data not found for ${symbol}`);
+            continue; // Skip to the next symbol
+          }
+
+          results[symbol] = { price: data.close, volume: data.volume };
+        } catch (error) {
+          if (error instanceof Error) {
+            console.error(`Error processing data for ${symbol}: ${error.message}`);
+          } else {
+            console.error(`Error processing data for ${symbol}: ${error}`);
+          }
         }
-
-        const data = await response.json();
-        results[symbol] = { price: data.close, volume: data.volume };
       }
     };
 
