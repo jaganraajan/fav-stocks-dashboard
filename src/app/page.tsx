@@ -28,14 +28,14 @@ export default function Home() {
 //  const [stockDate, setStockDate] = useState<string | null>(null);
 
 const date = new Date();
-date.setDate(date.getDate()-3);
+date.setDate(date.getDate()-4);
 const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
 
 
   useEffect(() => {
     const fetchData = async () => {
       const date = new Date();
-      date.setDate(date.getDate()-3);
+      date.setDate(date.getDate()-4);
 
       try {
          const response = await fetch(`/api/getStockData?date=${stockDate}`);
