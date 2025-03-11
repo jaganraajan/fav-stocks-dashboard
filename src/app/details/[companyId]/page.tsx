@@ -126,7 +126,7 @@ export default function Page() {
   }
 
   if (!stockDataResponse) {
-    return <div>No data available.</div>; // Handle the case where data is still null after loading
+    return <div>No data available. Please try again.</div>; // Handle the case where data is still null after loading
   }
 
   const { results } = stockDataResponse;
