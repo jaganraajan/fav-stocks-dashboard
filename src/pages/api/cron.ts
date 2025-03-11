@@ -40,7 +40,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const client = new Client({
-      connectionString: process.env.NEON_DATABASE_URL,
+      connectionString: process.env.DATABASE_URL,
     });
     await client.connect();
 
