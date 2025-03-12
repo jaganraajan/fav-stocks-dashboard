@@ -47,7 +47,7 @@ export default function Home() {
       date.setDate(date.getDate()-4);
 
       try {
-          const response = await fetch(`/api/getStockData?date=${stockDate}`);
+          const response = await fetch(`/api/getStockData`);
 
           if (!response.ok) {
             const errorData = await response.json();
