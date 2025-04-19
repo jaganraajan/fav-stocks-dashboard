@@ -17,6 +17,8 @@ export default function RootLayout({
     <html lang="en" className="dark:bg-gray-900">
       <head>
         <link rel="icon" href="/favicon.ico" />
+        <script src="https://cdn.botpress.cloud/webchat/v2.3/inject.js" defer></script>
+        <script src="https://files.bpcontent.cloud/2025/04/19/18/20250419181247-GU42H522.js" defer></script>  
       </head>
       <body className={`min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200`}>
         <Providers>
