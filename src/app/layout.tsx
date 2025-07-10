@@ -2,6 +2,7 @@ import { FaGithub, FaLinkedin } from 'react-icons/fa'
 import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: "Favourite Stocks Dashboard",
@@ -38,6 +39,18 @@ export default function RootLayout({
                       </a>
                     </li>
                   </ul>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <Link href="/login">
+                    <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                      Login
+                    </button>
+                  </Link>
+                  <Link href="/register">
+                    <button className="px-4 py-2 bg-pink-600 text-white rounded-md hover:bg-pink-700 transition-colors">
+                      Register
+                    </button>
+                  </Link>
                 </div>
               </nav>
             </header>
