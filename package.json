@@ -13,6 +13,7 @@
     "@heroui/theme": "^2.4.12",
     "@neondatabase/serverless": "^0.10.4",
     "@nextui-org/react": "^2.6.11",
+    "@stackframe/stack": "^2.8.19",
     "framer-motion": "^12.4.1",
     "lucide-react": "^0.475.0",
     "next": "15.1.6",

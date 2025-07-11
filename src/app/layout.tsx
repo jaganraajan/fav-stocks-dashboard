@@ -1,4 +1,6 @@
 import { FaGithub, FaLinkedin } from 'react-icons/fa'
+import { StackProvider, StackTheme } from "@stackframe/stack";
+import { stackServerApp } from "../stack";
 import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -21,7 +23,7 @@ export default function RootLayout({
         <script src="https://cdn.botpress.cloud/webchat/v2.3/inject.js" defer></script>
         <script src="https://files.bpcontent.cloud/2025/04/19/18/20250419181247-GU42H522.js" defer></script>  
       </head>
-      <body className={`min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200`}>
+      <body className={`min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200`}><StackProvider app={stackServerApp}><StackTheme>
         <Providers>
           <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200">
             <header className="py-6 px-4 bg-white dark:bg-gray-800 shadow-md">
@@ -41,12 +43,12 @@ export default function RootLayout({
                   </ul>
                 </div>
                 <div className="flex items-center space-x-4">
-                  <Link href="/login">
+                  <Link href="/handler/sign-in">
                     <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
                       Login
                     </button>
                   </Link>
-                  <Link href="/register">
+                  <Link href="/handler/sign-up">
                     <button className="px-4 py-2 bg-pink-600 text-white rounded-md hover:bg-pink-700 transition-colors">
                       Register
                     </button>
@@ -62,7 +64,7 @@ export default function RootLayout({
             </footer>
           </div>
         </Providers>
-      </body>
+      </StackTheme></StackProvider></body>
     </html>
   )
 }
