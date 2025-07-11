@@ -3,19 +3,21 @@
 import React from 'react';
 import Link from 'next/link';
 import { FaLinkedin, FaGithub } from 'react-icons/fa';
+import { useUser } from "@stackframe/stack";
 
 interface NavBarProps {
     userEmail: string | null;
 }
 
 const NavBar: React.FC<NavBarProps> = ({ userEmail }) => {
+    const user = useUser(); // Call the hook directly in the component body
+  
+    const handleSignOut = () => {
 
-  const handleSignOut = () => {
-    // Clear authentication data
-    localStorage.removeItem('token');
-    localStorage.removeItem('email');
-    window.location.href = '/handler/sign-in'; // Redirect to sign-in page
-  };
+    if (user) {
+        user.signOut();
+    }
+};
 
   return (
     <nav className="container mx-auto flex justify-between items-center">

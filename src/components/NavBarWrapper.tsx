@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import NavBar from './NavBar';
 import { stackServerApp } from '@/app/stack';
 
@@ -15,17 +15,11 @@ const NavBarWrapper = async () => {
     console.error("Failed to fetch user data:", error);
   }
 
-//   const handleSignOut = async () => {
-//     try {
-//     //   await stackServerApp.signOut(); // Sign out the user
-//         console.log('test sign out');
-//       window.location.href = '/handler/sign-in'; // Redirect to sign-in page
-//     } catch (error) {
-//       console.error('Failed to sign out:', error);
-//     }
-//   };
-
-  return <NavBar userEmail={userEmail}/>;
+    return (
+        <Suspense fallback={<p>Loading...</p>}>
+        <NavBar userEmail={userEmail} />
+        </Suspense>
+    );
 };
 
 export default NavBarWrapper;
