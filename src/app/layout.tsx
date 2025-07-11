@@ -1,12 +1,8 @@
-// import { useEffect, useState } from "react";
-// import { FaGithub, FaLinkedin } from 'react-icons/fa'
 import { StackProvider, StackTheme } from "@stackframe/stack";
 import { stackServerApp } from "./stack";
 import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
-import Link from 'next/link';
-// import NavBar from '../components/NavBar';
 import NavBarWrapper from "@/components/NavBarWrapper";
 
 export const metadata: Metadata = {
