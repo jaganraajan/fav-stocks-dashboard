@@ -59,6 +59,7 @@ const createHistoricalDataTable = async () => {
     }
   };
   
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   const storeDataInHistoricalTable = async (symbol: string, date: string, data: any) => {
     try {
       const { results } = data;
