@@ -3,6 +3,7 @@
 import { Link } from "@heroui/react";
 import { Card, CardBody, CardHeader } from "@heroui/react";
 import { useState, useEffect } from 'react';
+import HistoricalChartPage from "./historicalChart/page";
 
 interface StockData {
   symbol: string;
@@ -133,6 +134,9 @@ export default function Home() {
           </table>
         </CardBody>
             </Card>
+            <h1 className="text-4xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-pink-600">Historical Analysis</h1>
+            
+            <HistoricalChartPage />
       </div>
   );
 }

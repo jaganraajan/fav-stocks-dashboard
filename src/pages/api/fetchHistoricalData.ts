@@ -5,9 +5,9 @@ import { neon } from '@neondatabase/serverless';
 
 const sql = neon(process.env.DATABASE_URL || '');
 
-const symbolsGroup1 = ['AAPL', 'NKE'];
-// const symbolsGroup1 = ['AAPL', 'NKE', 'BA', 'TSLA', 'GOOG'];
-// const symbolsGroup2 = ['NFLX', 'LMT', 'AMZN', 'NVDA', 'MSFT'];
+// const symbolsGroup1 = ['AAPL', 'NKE'];
+const symbolsGroup1 = ['AAPL', 'NKE', 'BA', 'TSLA', 'GOOG'];
+const symbolsGroup2 = ['NFLX', 'LMT', 'AMZN', 'NVDA', 'MSFT'];
 const apiKey = process.env.NEXT_PUBLIC_POLYGON_API_KEY; // Ensure this is set in your .env file
 const baseUrl = 'https://api.polygon.io/v2/aggs/ticker';
 
@@ -98,7 +98,7 @@ const fetchDataForSymbols = async (symbols: string[], days: number, intervalMs: 
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const intervalMs = 2000; // Adjust based on Polygon API rate limit
+    const intervalMs = 12000; // Adjust based on Polygon API rate limit
     const days = 3; // Fetch data for the past 10 days
 
     // Create the historical data table
@@ -107,8 +107,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('Starting data fetch for Group 1...');
     await fetchDataForSymbols(symbolsGroup1, days, intervalMs);
 
-    // console.log('Starting data fetch for Group 2...');
-    // await fetchDataForSymbols(symbolsGroup2, days, intervalMs);
+    console.log('Starting data fetch for Group 2...');
+    await fetchDataForSymbols(symbolsGroup2, days, intervalMs);
 
     res.status(200).json({ message: 'Historical data fetch completed successfully' });
   } catch (error) {
