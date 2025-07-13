@@ -99,7 +99,7 @@ const fetchDataForSymbols = async (symbols: string[], days: number, intervalMs: 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     const intervalMs = 12000; // Adjust based on Polygon API rate limit
-    const days = 3; // Fetch data for the past 10 days
+    const days = 31; // Fetch data for the past 10 days
 
     // Create the historical data table
     await createHistoricalDataTable();

@@ -4,6 +4,8 @@ import { Link } from "@heroui/react";
 import { Card, CardBody, CardHeader } from "@heroui/react";
 import { useState, useEffect } from 'react';
 import HistoricalChartPage from "./historicalChart/page";
+import axios from 'axios';
+import { useUser } from "@stackframe/stack";
 
 interface StockData {
   symbol: string;
@@ -35,12 +37,32 @@ const formatVolume = (volume: number) => {
   return volume.toString();
 };
 
+const handleRemoveFavorite = async (symbol: string, userId: string, setFavorites: React.Dispatch<React.SetStateAction<string[]>>) => {
+  try {
+    const response = await axios.post(
+      '/api/favorites',
+      { symbol, userId, action: 'remove' }, // Request body
+    );
+    
+    if (response.status === 200) {
+      console.log(`Successfully removed ${symbol} from favorites.`);
+      setFavorites((prevFavorites) => prevFavorites.filter((fav) => fav !== symbol)); // Update the favorites state instantly
+    } else {
+      console.error(`Failed to remove ${symbol} from favorites.`);
+    }
+  } catch (error) {
+    console.error(`Error removing ${symbol} from favorites:`, error);
+  }
+};
+
 export default function Home() {
+  const [favorites, setFavorites] = useState<string[]>([]); // State to store favorite symbols
   const [stockData, setStockData] = useState<{ [symbol: string]: StockData }>({});
   const date = new Date();
   date.setDate(date.getDate()-4);
   const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
-
+  const user = useUser(); // Get the user object using the useUser hook
+  const email = user?.primaryEmail; // Extract the user's email
 
   useEffect(() => {
     const fetchData = async () => {
@@ -72,14 +94,40 @@ export default function Home() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      if (!user) return;
 
-  const rows = Object.entries(stockData).map(([symbol, data]) => ({
-    key: symbol,
-    name: companyNames[symbol],
-    symbol: symbol,
-    price: formatPrice(Number(data.price)),
-    volume: formatVolume(Number(data.volume)),
-  }));
+      try {
+        const response = await axios.get(`/api/favorites`, {
+          params: { userId: email },
+        });
+        console.log('Fetched favorites2:', response.data);
+        setFavorites(response.data.map((favorite: { symbol: string }) => favorite.symbol)); // Extract symbols from favorites
+        console.log(favorites.length)
+      } catch (error) {
+        console.error('Error fetching favorites:', error);
+      }
+    };
+
+    fetchFavorites();
+  }, [user]);
+
+  const rows = Object.entries(stockData)
+  .filter(([symbol]) => {
+    // If the user is logged in and has favorites, filter by favorites
+    if (favorites.length > 0) {
+      return favorites.includes(symbol);
+    }
+    // If the user is not logged in, display all stocks
+    return true;
+  }).map(([symbol, data]) => ({
+      key: symbol,
+      name: companyNames[symbol],
+      symbol: symbol,
+      price: formatPrice(Number(data.price)),
+      volume: formatVolume(Number(data.volume)),
+    }));
 
   const columns = [
     { key: "name", label: "Company Name" },
@@ -128,6 +176,16 @@ export default function Home() {
                       )}
                     </td>
                   ))}
+                  <td>
+                  <button
+                    className="px-2 py-1 bg-red-500 rounded text-white"
+                    onClick={() => {
+                        handleRemoveFavorite(row.symbol, email || '', setFavorites); // Pass the user's email or an empty string if not available
+                    }}
+                  >
+                    Remove
+                  </button>
+                </td>
                 </tr>
               ))}
             </tbody>
