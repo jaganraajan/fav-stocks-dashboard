@@ -26,6 +26,14 @@ const companyNames: { [symbol: string]: string } = {
   MSFT: 'Microsoft Corp.',
 };
 
+const mockAdditionalCompanies = [
+  { symbol: 'NFLX', name: 'Netflix Inc.' },
+  { symbol: 'AMZN', name: 'Amazon.com Inc.' },
+  { symbol: 'NVDA', name: 'NVIDIA Corp.' },
+  { symbol: 'MSFT', name: 'Microsoft Corp.' },
+  { symbol: 'BA', name: 'Boeing Co.' },
+];
+
 const formatPrice = (price: number) => `$${price.toFixed(2)}`;
 
 const formatVolume = (volume: number) => {
@@ -56,6 +64,7 @@ const handleRemoveFavorite = async (symbol: string, userId: string, setFavorites
 };
 
 export default function Home() {
+  const [editMode, setEditMode] = useState(false); 
   const [favorites, setFavorites] = useState<string[]>([]); // State to store favorite symbols
   const [stockData, setStockData] = useState<{ [symbol: string]: StockData }>({});
   const date = new Date();
@@ -63,6 +72,12 @@ export default function Home() {
   const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
   const user = useUser(); // Get the user object using the useUser hook
   const email = user?.primaryEmail; // Extract the user's email
+  const [showPopup, setShowPopup] = useState(false); // State to control popup visibility
+
+  const handleAddCompany = (company: { symbol: string; name: string }) => {
+    setFavorites((prevFavorites) => [...prevFavorites, company.symbol]); // Add company to favorites
+    setShowPopup(false); // Close the popup after adding
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -138,6 +153,7 @@ export default function Home() {
 
 
   return (
+    <>
     <div className="container max-w-4xl mx-auto p-4 space-y-6">
             <h1 className="text-4xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-pink-600">Favourite Stocks Dashboard</h1>
             
@@ -160,6 +176,16 @@ export default function Home() {
                     {column.label}
                   </th>
                 ))}
+                <th className="border px-4 py-2">
+                {email && (
+                  <button
+                    className="px-2 py-1 bg-blue-500 rounded text-white"
+                    onClick={() => setEditMode((prev) => !prev)} // Toggle edit mode for the table
+                  >
+                    {editMode ? 'Cancel Edit' : 'Edit'}
+                  </button>
+                )}
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-900">
@@ -176,7 +202,8 @@ export default function Home() {
                       )}
                     </td>
                   ))}
-                  <td>
+                  <td className="px-4">
+                  {editMode && (
                   <button
                     className="px-2 py-1 bg-red-500 rounded text-white"
                     onClick={() => {
@@ -185,16 +212,58 @@ export default function Home() {
                   >
                     Remove
                   </button>
+                  )}
                 </td>
                 </tr>
               ))}
             </tbody>
+            {editMode && (<tfoot>
+              <tr>
+                <td colSpan={5} className="border px-4 py-2 text-center">
+                  <button
+                    className="w-full px-4 py-2 bg-green-500 text-white rounded"
+                    onClick={() => setShowPopup(true)} // Show popup when clicked
+                  >
+                    + Add Company
+                  </button>
+                </td>
+              </tr>
+            </tfoot>)}
           </table>
+          
         </CardBody>
             </Card>
+            
             <h1 className="text-4xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-pink-600">Historical Analysis</h1>
             
             <HistoricalChartPage />
       </div>
+      {/* Popup for adding companies */}
+      {showPopup && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded shadow-lg">
+            <h2 className="text-xl font-bold mb-4">Add a Company</h2>
+            <ul>
+              {mockAdditionalCompanies.map((company) => (
+                <li key={company.symbol} className="mb-2">
+                  <button
+                    className="px-4 py-2 bg-blue-500 text-white rounded"
+                    onClick={() => handleAddCompany(company)} // Add company to favorites
+                  >
+                    {company.name} ({company.symbol})
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <button
+              className="mt-4 px-4 py-2 bg-red-500 text-white rounded"
+              onClick={() => setShowPopup(false)} // Close popup
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
