@@ -100,13 +100,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const intervalMs = 12000; // Adjust based on Polygon API rate limit
-    const days = 5; // Fetch data for the past 10 days
+    const days = 31; // Fetch data for the past 31 days
 
     // Create the historical data table
     await createHistoricalDataTable();
-
-    // console.log('Starting data fetch for Group 1...');
-    // await fetchDataForSymbols(symbolsGroup1, days, intervalMs);
 
     console.log('Starting data fetch for Group 2...');
     await fetchDataForSymbol(symbol as string, days, intervalMs);
