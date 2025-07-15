@@ -3,12 +3,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useUser } from "@stackframe/stack";
 
-const mockUsers = [
-    { email: 'admin@example.com', role: 'admin' },
-    { email: 'user1@example.com', role: 'user' },
-    { email: 'user2@example.com', role: 'user' },
-    { email: 'manager@example.com', role: 'manager' },
-];
 
 const mockStocks = [
     { symbol: 'AAPL', name: 'Apple Inc.' },
@@ -23,7 +17,7 @@ export default function AdminDashboardPage() {
   const id = user?.id; // Extract the user's id
   const [role, setRole] = useState<string | null>(null); // State to store the user's role
 
-  const [users, setUsers] = useState<{ email: string, role: string }[]>(mockUsers);
+  const [users, setUsers] = useState<{ email: string, role: string }[]>([]);
   const [stocks, setStocks] = useState<{ symbol: string, name: string }[]>(mockStocks);
   const [stockName, setStockName] = useState('');
   const [stockSymbol, setStockSymbol] = useState('');
@@ -36,20 +30,29 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const makeAdmin = (email: string) => {
-    setUsers(users.map(u => (u.email === email ? { ...u, role: 'admin' } : u)));
+  const makeAdmin = async (email: string) => {
+    try {
+        await axios.post('/api/makeAdmin', { email });
+        setUsers(users.map((u) => (u.email === email ? { ...u, role: 'admin' } : u))); // Update the local state
+      } catch (error) {
+        console.error('Error making user admin:', error);
+      }
   };
 
-//   useEffect(() => {
-//     if (!user || user.role !== "admin") return;
-//     // Fetch users
-//     axios.get('/api/admin/users', { headers: { 'x-user-id': user.primaryEmail } })
-//       .then(res => setUsers(res.data));
-//     // Fetch stocks
-//     axios.get('/api/admin/stocks', { headers: { 'x-user-id': user.primaryEmail } })
-//       .then(res => setStocks(res.data));
-//   }, [user]);
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get('/api/getUsers');
+        setUsers(response.data);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+    };
 
+    fetchUsers();
+  }, []);
+
+    // to make sure only admins can access this page
     useEffect(() => {
         const fetchUserRole = async () => {
             if (!id) return;
@@ -70,18 +73,6 @@ export default function AdminDashboardPage() {
   if (!user || role !== 'admin') {
     return <p>Access denied. You must be an admin to view this page.</p>;
   }
-
-//   const promoteUser = (email: string) => {
-//     axios.post('/api/admin/users', { email, role: 'admin' }, { headers: { 'x-user-id': user.primaryEmail } })
-//       .then(() => window.location.reload());
-//   };
-
-//   const addStock = async () => {
-//     await axios.post('/api/admin/stocks', { symbol: stockSymbol, name: stockName }, { headers: { 'x-user-id': user.primaryEmail } });
-//     setStockSymbol('');
-//     setStockName('');
-//     window.location.reload();
-//   };
 
   return (
     <div className="container mx-auto p-8">
