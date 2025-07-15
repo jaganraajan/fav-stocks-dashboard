@@ -3,14 +3,11 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useUser } from "@stackframe/stack";
 
-
-// const mockStocks = [
-//     { symbol: 'AAPL', name: 'Apple Inc.' },
-//     { symbol: 'TSLA', name: 'Tesla Inc.' },
-//     { symbol: 'GOOG', name: 'Alphabet Inc.' },
-//     { symbol: 'NFLX', name: 'Netflix Inc.' },
-//     { symbol: 'AMZN', name: 'Amazon.com Inc.' },
-// ];
+// Example stock ticker symbols:
+// Citibank (Ticker: C)
+// JP Morgan Chase (Ticker: JPM)
+// Goldman Sachs (Ticker: GS)
+// AMD (Ticker: AMD)
 
 export default function AdminDashboardPage() {
   const user = useUser();
@@ -22,13 +19,7 @@ export default function AdminDashboardPage() {
   const [stockName, setStockName] = useState('');
   const [stockSymbol, setStockSymbol] = useState('');
 
-
-  // stock ticker values
-  // Citibank - C
-  // JP Morgan Chase - JPM
-// Goldman Sachs - GS
-// AMD - AMD
-
+  // Function to add a new stock to the database
   const addStock = async () => {
     if (stockSymbol && stockName) {
         try {
@@ -84,36 +75,36 @@ export default function AdminDashboardPage() {
     fetchUsers();
   }, []);
 
-    // to make sure only admins can access this page
-    useEffect(() => {
-        const fetchUserRole = async () => {
-            if (!id) return;
+  // to make sure only admins can access this page
+  useEffect(() => {
+      const fetchUserRole = async () => {
+          if (!id) return;
 
-            try {
-                const response = await axios.get('/api/getUserRole', {
-                params: { id },
-                });
-                setRole(response.data.role); // Set the role state
-            } catch (error) {
-                console.error('Error fetching user role:', error);
-            }
-        };
+          try {
+              const response = await axios.get('/api/getUserRole', {
+              params: { id },
+              });
+              setRole(response.data.role); // Set the role state
+          } catch (error) {
+              console.error('Error fetching user role:', error);
+          }
+      };
 
-        fetchUserRole();
-    }, [id]);
+      fetchUserRole();
+  }, [id]);
 
-    useEffect(() => {
-        const fetchStocks = async () => {
-            try {
-            const response = await axios.get('/api/getStockList'); // Fetch stocks from the API
-            setStocks(response.data); // Set the stocks state with the fetched data
-            } catch (error) {
-            console.error('Error fetching stocks:', error);
-        }
+  useEffect(() => {
+    const fetchStocks = async () => {
+        try {
+          const response = await axios.get('/api/getStockList'); // Fetch stocks from the API
+          setStocks(response.data); // Set the stocks state with the fetched data
+          } catch (error) {
+          console.error('Error fetching stocks:', error);
+      }
     };
 
     fetchStocks();
-    }, []);
+  }, []);
 
   if (!user || role !== 'admin') {
     return <p>Access denied. You must be an admin to view this page.</p>;
