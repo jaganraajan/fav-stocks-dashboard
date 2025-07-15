@@ -105,7 +105,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Create the historical data table
     await createHistoricalDataTable();
 
-    console.log('Starting data fetch for Group 2...');
+    console.log('Starting data fetch for symbol:', symbol);
     await fetchDataForSymbol(symbol as string, days, intervalMs);
 
     res.status(200).json({ message: 'Historical data fetch completed successfully' });
