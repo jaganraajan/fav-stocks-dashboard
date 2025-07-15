@@ -5,9 +5,6 @@ import { neon } from '@neondatabase/serverless';
 
 const sql = neon(process.env.DATABASE_URL || '');
 
-// const symbolsGroup1 = ['AAPL', 'NKE'];
-// const symbolsGroup1 = ['AAPL', 'NKE', 'BA', 'TSLA', 'GOOG'];
-// const symbolsGroup2 = ['NFLX', 'LMT', 'AMZN', 'NVDA', 'MSFT'];
 const apiKey = process.env.NEXT_PUBLIC_POLYGON_API_KEY; // Ensure this is set in your .env file
 const baseUrl = 'https://api.polygon.io/v2/aggs/ticker';
 
@@ -82,7 +79,6 @@ const createHistoricalDataTable = async () => {
 
 const fetchDataForSymbol = async (symbol: string, days: number, intervalMs: number) => {
   const pastDates = getPastDates(days);
-//   for (const symbol of symbols) {
     console.log(`Fetching data for ${symbol}...`);
     for (const date of pastDates) {
       const data = await fetchHistoricalData(symbol, date);
@@ -93,7 +89,6 @@ const fetchDataForSymbol = async (symbol: string, days: number, intervalMs: numb
       }
       await new Promise((resolve) => setTimeout(resolve, intervalMs)); // Respect rate limit
     }
-//   }
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

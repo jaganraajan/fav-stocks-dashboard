@@ -60,8 +60,12 @@ export default function Home() {
   const [companyNames, setCompanyNames] = useState<{  name: string, symbol: string }[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]); // State to store favorite symbols
   const [stockData, setStockData] = useState<{ [symbol: string]: StockData }>({});
+  
   const date = new Date();
+  
+  // Adjusting date to fetch data starting from 4 days ago due to API restrictions on current day's data
   date.setDate(date.getDate()-4);
+  
   const stockDate =  date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
   const user = useUser(); // Get the user object using the useUser hook
   const email = user?.primaryEmail; // Extract the user's email
@@ -71,9 +75,9 @@ export default function Home() {
     try {
       // Make an API call to add the company to favorites
       const response = await axios.post('/api/favorites', {
-        userId: email, // Pass the user's email or ID
-        symbol: company.symbol, // Pass the company symbol
-        action: 'add', // Specify the action as 'add'
+        userId: email,
+        symbol: company.symbol,
+        action: 'add',
       });
   
       if (response.status === 200) {
@@ -122,8 +126,7 @@ export default function Home() {
           });
 
           setStockData(results);
-      /* eslint-disable @typescript-eslint/no-explicit-any */
-      } catch (err: any) {
+      } catch (err) {
         console.log(err);
       }
     };
@@ -131,6 +134,7 @@ export default function Home() {
     fetchData();
   }, []);
 
+  // hook to fetch list of favorites for the currently logged-in user
   useEffect(() => {
     const fetchFavorites = async () => {
       if (!user) return;
@@ -172,7 +176,6 @@ export default function Home() {
     { key: "price", label: "Share Price (USD)" },
     { key: "volume", label: "Volume" },
   ];
-
 
   return (
     <>
@@ -254,11 +257,11 @@ export default function Home() {
           </table>
           
         </CardBody>
-            </Card>
-            
-            <h1 className="text-4xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-pink-600">Historical Analysis</h1>
-            
-            <HistoricalChartPage />
+      </Card>
+      
+      <h1 className="text-4xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-pink-600">Historical Analysis</h1>
+      
+      <HistoricalChartPage />
       </div>
       {/* Popup for adding companies */}
       {showPopup && (

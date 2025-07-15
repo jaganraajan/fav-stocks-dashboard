@@ -2,10 +2,7 @@
 
 import { StockChart } from '@/components/StockChart';
 import { fetchStockChartData } from '@/pages/api/fetchStockChartData';
-// import { mockStockChartData } from '@/mockStockChartData';
 import React, { useEffect, useState } from 'react';
-// import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-
 
 const HistoricalChartPage = () => {
       /* eslint-disable @typescript-eslint/no-explicit-any */
