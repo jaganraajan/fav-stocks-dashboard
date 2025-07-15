@@ -13,26 +13,18 @@ interface StockData {
   volume: string;
 }
 
-const companyNames: { [symbol: string]: string } = {
-  AAPL: 'Apple Inc.',
-  NKE: 'Nike Inc.',
-  BA: 'Boeing Co.',
-  TSLA: 'Tesla Inc.',
-  GOOG: 'Alphabet Inc.',
-  NFLX: 'Netflix Inc.',
-  LMT: 'Lockheed Martin Corp.',
-  AMZN: 'Amazon.com Inc.',
-  NVDA: 'NVIDIA Corp.',
-  MSFT: 'Microsoft Corp.',
-};
-
-const mockAdditionalCompanies = [
-  { symbol: 'NFLX', name: 'Netflix Inc.' },
-  { symbol: 'AMZN', name: 'Amazon.com Inc.' },
-  { symbol: 'NVDA', name: 'NVIDIA Corp.' },
-  { symbol: 'MSFT', name: 'Microsoft Corp.' },
-  { symbol: 'BA', name: 'Boeing Co.' },
-];
+// const companyNames: { [symbol: string]: string } = {
+//   AAPL: 'Apple Inc.',
+//   NKE: 'Nike Inc.',
+//   BA: 'Boeing Co.',
+//   TSLA: 'Tesla Inc.',
+//   GOOG: 'Alphabet Inc.',
+//   NFLX: 'Netflix Inc.',
+//   LMT: 'Lockheed Martin Corp.',
+//   AMZN: 'Amazon.com Inc.',
+//   NVDA: 'NVIDIA Corp.',
+//   MSFT: 'Microsoft Corp.',
+// };
 
 const formatPrice = (price: number) => `$${price.toFixed(2)}`;
 
@@ -65,6 +57,7 @@ const handleRemoveFavorite = async (symbol: string, userId: string, setFavorites
 
 export default function Home() {
   const [editMode, setEditMode] = useState(false); 
+  const [companyNames, setCompanyNames] = useState<{  name: string, symbol: string }[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]); // State to store favorite symbols
   const [stockData, setStockData] = useState<{ [symbol: string]: StockData }>({});
   const date = new Date();
@@ -74,10 +67,39 @@ export default function Home() {
   const email = user?.primaryEmail; // Extract the user's email
   const [showPopup, setShowPopup] = useState(false); // State to control popup visibility
 
-  const handleAddCompany = (company: { symbol: string; name: string }) => {
-    setFavorites((prevFavorites) => [...prevFavorites, company.symbol]); // Add company to favorites
-    setShowPopup(false); // Close the popup after adding
+  const handleAddCompany = async (company: { symbol: string; name: string }) => {
+    try {
+      // Make an API call to add the company to favorites
+      const response = await axios.post('/api/favorites', {
+        userId: email, // Pass the user's email or ID
+        symbol: company.symbol, // Pass the company symbol
+        action: 'add', // Specify the action as 'add'
+      });
+  
+      if (response.status === 200) {
+        console.log(`Successfully added ${company.name} (${company.symbol}) to favorites.`);
+        setFavorites((prevFavorites) => [...prevFavorites, company.symbol]); // Update the favorites state
+        setShowPopup(false); // Close the popup after adding
+      } else {
+        console.error(`Failed to add ${company.name} (${company.symbol}) to favorites.`);
+      }
+    } catch (error) {
+      console.error(`Error adding ${company.name} (${company.symbol}) to favorites:`, error);
+    }
   };
+
+  useEffect(() => {
+    const fetchStocks = async () => {
+        try {
+        const response = await axios.get('/api/getStockList'); // Fetch stocks from the API
+        setCompanyNames(response.data); // Set the stocks state with the fetched data
+        } catch (error) {
+        console.error('Error fetching stocks:', error);
+      }
+    };
+
+    fetchStocks();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -138,7 +160,7 @@ export default function Home() {
     return true;
   }).map(([symbol, data]) => ({
       key: symbol,
-      name: companyNames[symbol],
+      name: companyNames.find((company) => company.symbol === symbol)?.name,
       symbol: symbol,
       price: formatPrice(Number(data.price)),
       volume: formatVolume(Number(data.volume)),
@@ -244,7 +266,9 @@ export default function Home() {
           <div className="bg-white p-6 rounded shadow-lg">
             <h2 className="text-xl font-bold mb-4">Add a Company</h2>
             <ul>
-              {mockAdditionalCompanies.map((company) => (
+              {companyNames
+                .filter((company) => !favorites.includes(company.symbol)) // Exclude companies already in favorites
+                .map((company) => (
                 <li key={company.symbol} className="mb-2">
                   <button
                     className="px-4 py-2 bg-blue-500 text-white rounded"

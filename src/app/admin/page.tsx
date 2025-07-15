@@ -4,13 +4,13 @@ import axios from "axios";
 import { useUser } from "@stackframe/stack";
 
 
-const mockStocks = [
-    { symbol: 'AAPL', name: 'Apple Inc.' },
-    { symbol: 'TSLA', name: 'Tesla Inc.' },
-    { symbol: 'GOOG', name: 'Alphabet Inc.' },
-    { symbol: 'NFLX', name: 'Netflix Inc.' },
-    { symbol: 'AMZN', name: 'Amazon.com Inc.' },
-];
+// const mockStocks = [
+//     { symbol: 'AAPL', name: 'Apple Inc.' },
+//     { symbol: 'TSLA', name: 'Tesla Inc.' },
+//     { symbol: 'GOOG', name: 'Alphabet Inc.' },
+//     { symbol: 'NFLX', name: 'Netflix Inc.' },
+//     { symbol: 'AMZN', name: 'Amazon.com Inc.' },
+// ];
 
 export default function AdminDashboardPage() {
   const user = useUser();
@@ -18,15 +18,47 @@ export default function AdminDashboardPage() {
   const [role, setRole] = useState<string | null>(null); // State to store the user's role
 
   const [users, setUsers] = useState<{ email: string, role: string }[]>([]);
-  const [stocks, setStocks] = useState<{ symbol: string, name: string }[]>(mockStocks);
+  const [stocks, setStocks] = useState<{  name: string, symbol: string }[]>([]);
   const [stockName, setStockName] = useState('');
   const [stockSymbol, setStockSymbol] = useState('');
 
-  const addStock = () => {
+
+  // stock ticker values
+  // Citibank - C
+  // JP Morgan Chase - JPM
+// Goldman Sachs - GS
+// AMD - AMD
+
+  const addStock = async () => {
     if (stockSymbol && stockName) {
-      setStocks([...stocks, { symbol: stockSymbol, name: stockName }]);
-      setStockSymbol('');
-      setStockName('');
+        try {
+            let data_populated = false;
+            const historicalResponse = await axios.get(`/api/fetchHistoricalData`, {
+                params: { symbol: stockSymbol },
+            });
+
+            if (historicalResponse.status === 200) {
+                console.log('Historical data fetched successfully');
+                data_populated = true;
+            }
+
+            const response = await axios.post('/api/addStock', {
+              name: stockName,
+              symbol: stockSymbol,
+              data_populated: data_populated, // Pass the data_populated flag
+            });
+      
+            if (response.status === 200) {
+              setStocks([...stocks, { symbol: stockSymbol, name: stockName }]); // Update local state
+              setStockSymbol('');
+              setStockName('');
+              console.log('Stock added successfully');
+            } else {
+              console.error('Failed to add stock');
+            }
+          } catch (error) {
+            console.error('Error adding stock:', error);
+        }
     }
   };
 
@@ -69,6 +101,19 @@ export default function AdminDashboardPage() {
 
         fetchUserRole();
     }, [id]);
+
+    useEffect(() => {
+        const fetchStocks = async () => {
+            try {
+            const response = await axios.get('/api/getStockList'); // Fetch stocks from the API
+            setStocks(response.data); // Set the stocks state with the fetched data
+            } catch (error) {
+            console.error('Error fetching stocks:', error);
+        }
+    };
+
+    fetchStocks();
+    }, []);
 
   if (!user || role !== 'admin') {
     return <p>Access denied. You must be an admin to view this page.</p>;

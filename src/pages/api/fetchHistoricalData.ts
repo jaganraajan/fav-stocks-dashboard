@@ -6,8 +6,8 @@ import { neon } from '@neondatabase/serverless';
 const sql = neon(process.env.DATABASE_URL || '');
 
 // const symbolsGroup1 = ['AAPL', 'NKE'];
-const symbolsGroup1 = ['AAPL', 'NKE', 'BA', 'TSLA', 'GOOG'];
-const symbolsGroup2 = ['NFLX', 'LMT', 'AMZN', 'NVDA', 'MSFT'];
+// const symbolsGroup1 = ['AAPL', 'NKE', 'BA', 'TSLA', 'GOOG'];
+// const symbolsGroup2 = ['NFLX', 'LMT', 'AMZN', 'NVDA', 'MSFT'];
 const apiKey = process.env.NEXT_PUBLIC_POLYGON_API_KEY; // Ensure this is set in your .env file
 const baseUrl = 'https://api.polygon.io/v2/aggs/ticker';
 
@@ -80,9 +80,9 @@ const createHistoricalDataTable = async () => {
     }
   };
 
-const fetchDataForSymbols = async (symbols: string[], days: number, intervalMs: number) => {
+const fetchDataForSymbol = async (symbol: string, days: number, intervalMs: number) => {
   const pastDates = getPastDates(days);
-  for (const symbol of symbols) {
+//   for (const symbol of symbols) {
     console.log(`Fetching data for ${symbol}...`);
     for (const date of pastDates) {
       const data = await fetchHistoricalData(symbol, date);
@@ -93,22 +93,28 @@ const fetchDataForSymbols = async (symbols: string[], days: number, intervalMs: 
       }
       await new Promise((resolve) => setTimeout(resolve, intervalMs)); // Respect rate limit
     }
-  }
+//   }
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
+    const { symbol } = req.query; // Get the company symbol from the query params
+
+    if (!symbol) {
+      return res.status(400).json({ error: 'Symbol is required' });
+    }
+
     const intervalMs = 12000; // Adjust based on Polygon API rate limit
-    const days = 31; // Fetch data for the past 10 days
+    const days = 5; // Fetch data for the past 10 days
 
     // Create the historical data table
     await createHistoricalDataTable();
 
-    console.log('Starting data fetch for Group 1...');
-    await fetchDataForSymbols(symbolsGroup1, days, intervalMs);
+    // console.log('Starting data fetch for Group 1...');
+    // await fetchDataForSymbols(symbolsGroup1, days, intervalMs);
 
     console.log('Starting data fetch for Group 2...');
-    await fetchDataForSymbols(symbolsGroup2, days, intervalMs);
+    await fetchDataForSymbol(symbol as string, days, intervalMs);
 
     res.status(200).json({ message: 'Historical data fetch completed successfully' });
   } catch (error) {
