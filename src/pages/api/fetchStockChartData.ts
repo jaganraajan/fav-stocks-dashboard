@@ -1,25 +1,18 @@
 import axios from 'axios';
 
-const companies = {
-  AAPL: 'Apple Inc.',
-  NKE: 'Nike Inc.',
-  BA: 'Boeing Co.',
-  TSLA: 'Tesla Inc.',
-  GOOG: 'Alphabet Inc.',
-  NFLX: 'Netflix Inc.',
-  LMT: 'Lockheed Martin Corp.',
-  AMZN: 'Amazon.com Inc.',
-  NVDA: 'NVIDIA Corp.',
-  MSFT: 'Microsoft Corp.',
-};
-
   /* eslint-disable @typescript-eslint/no-explicit-any */
-export const fetchStockChartData = async (): Promise<any[]> => {
-  console.log('fetchStockChartData called');
+export const fetchStockChartData = async (symbols: string[] = []): Promise<any[]> => {
+  console.log('fetchStockChartData called with symbols:', symbols);
   /* eslint-disable @typescript-eslint/no-explicit-any */
   const formattedData: any[] = [];
 
-for (const symbol in companies) {
+  // Return empty data if no symbols provided
+  if (symbols.length === 0) {
+    console.log('No symbols provided, returning empty data');
+    return formattedData;
+  }
+
+  for (const symbol of symbols) {
   try {
     const response = await axios.get(`/api/getHistoricalData`, {
       params: { symbol },
