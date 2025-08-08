@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   LineChart,
   Line,
@@ -48,6 +48,7 @@ const getDateString = (t: number) => {
 export const StockChart: React.FC<ChartProps> = ({ data }) => {
   // Flatten all dates for global range
   const allDates = useMemo(() => {
+    if (!data || data.length === 0) return [];
     const dates: string[] = [];
     data.forEach(stock =>
       stock.results.forEach(r =>
@@ -58,11 +59,20 @@ export const StockChart: React.FC<ChartProps> = ({ data }) => {
   }, [data]);
 
   const [param, setParam] = useState('v');
-  const [startDate, setStartDate] = useState(allDates[0]);
-  const [endDate, setEndDate] = useState(allDates[allDates.length - 1]);
+  const [startDate, setStartDate] = useState(allDates[0] || '');
+  const [endDate, setEndDate] = useState(allDates[allDates.length - 1] || '');
+
+  // Update startDate and endDate when allDates changes
+  useEffect(() => {
+    if (allDates.length > 0) {
+      setStartDate(allDates[0]);
+      setEndDate(allDates[allDates.length - 1]);
+    }
+  }, [allDates]);
 
   // Filter results by selected date range
   const filteredData = useMemo(() => {
+    if (!data || data.length === 0) return [];
     return data.map(stock => ({
       ticker: stock.ticker,
       results: stock.results.filter(r => {
@@ -74,6 +84,24 @@ export const StockChart: React.FC<ChartProps> = ({ data }) => {
       })),
     }));
   }, [data, startDate, endDate]);
+
+  // Early return if no data - after all hooks
+  if (!data || data.length === 0) {
+    return (
+      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow text-center">
+        <p className="text-gray-600 dark:text-gray-400">No chart data available</p>
+      </div>
+    );
+  }
+
+  // If no dates available, show a message
+  if (allDates.length === 0) {
+    return (
+      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow text-center">
+        <p className="text-gray-600 dark:text-gray-400">No historical data available for the selected companies</p>
+      </div>
+    );
+  }
 
   // Prepare chart data: [{date, [AAPL]: value, [NKE]: value}]
   const chartRows: Array<{ date: string; [key: string]: number | string }> = [];

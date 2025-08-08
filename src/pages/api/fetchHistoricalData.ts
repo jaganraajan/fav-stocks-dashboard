@@ -26,9 +26,19 @@ const fetchHistoricalData = async (symbol: string, date: string) => {
 const getPastDates = (days: number): string[] => {
   const dates = [];
   const today = new Date();
+  
+  // Start from today and go backwards
   for (let i = 0; i < days; i++) {
     const date = new Date(today);
     date.setDate(today.getDate() - i);
+    
+    // Skip weekends for stock market data (Saturday = 6, Sunday = 0)
+    const dayOfWeek = date.getDay();
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      days++; // Extend the range to compensate for weekends
+      continue;
+    }
+    
     const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     dates.push(formattedDate);
   }
@@ -63,6 +73,17 @@ const createHistoricalDataTable = async () => {
       if (results && results.length > 0) {
         const { v: volume, o: open, c: close, h: high, l: low, vw: vwap } = results[0]; // Extract relevant fields
         const id = uuidv4();
+
+        // Check if data already exists for this symbol and date
+        const existingData = await sql`
+          SELECT id FROM historical_stock_data 
+          WHERE symbol = ${symbol} AND date = ${date}
+        `;
+
+        if (existingData.length > 0) {
+          console.log(`Data already exists for ${symbol} on ${date}, skipping...`);
+          return;
+        }
   
         await sql`
           INSERT INTO historical_stock_data (id, date, symbol, open, close, high, low, vwap, volume)
@@ -100,7 +121,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const intervalMs = 12000; // Adjust based on Polygon API rate limit
-    const days = 31; // Fetch data for the past 31 days
+    const days = 60; // Fetch data for the past 60 days (excluding weekends)
 
     // Create the historical data table
     await createHistoricalDataTable();
